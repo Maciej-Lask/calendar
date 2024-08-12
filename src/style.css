@@ -1,0 +1,70 @@
+body {
+  font-family: Arial, sans-serif;
+}
+.form-select {
+  width: 10%;
+  min-width: 150px;
+}
+
+.calendar-row {
+  display: flex;
+}
+
+.header-row {
+  display: flex;  
+}
+
+.calendar-hours {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+[class*="col-"].current-day-column {
+  padding: 0;
+}
+[class*="col-"].hour-column {
+  padding: 0;
+  border-right: 1px solid #dee2e6;
+}
+
+.calendar-hour {
+  border-bottom: 1px solid #dee2e6;
+  text-align: center;
+  padding: 5px;
+  height: 30px;
+  background-color: #f8f9fa;
+}
+
+.calendar-day {
+  flex: 1;
+  border: 1px solid #dee2e6;
+}
+
+.month-calendar-day {
+  flex: 1;
+  border: 1px solid #dee2e6;
+  padding: 10px;
+}
+
+
+.calendar-day-header {
+  font-weight: bold;
+  flex: 1;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #dee2e6;
+}
+
+.current-time-line {
+  position: absolute;
+  border-top: 2px solid red;
+  opacity: 0.5;
+  width: 100%;
+
+  z-index: 10;
+  pointer-events: none;
+}
+.current-day {
+    background-color: #007bff; 
+    position: relative;
+}
