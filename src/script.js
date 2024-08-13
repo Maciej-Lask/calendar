@@ -18,6 +18,39 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+const events = [
+  {
+    title: 'Spotkanie z klientem',
+    startTime: new Date('2024-08-12T06:00:00'),
+    endTime: new Date('2024-08-12T11:00:00'),
+    description: 'Omówienie projektu z klientem.',
+  },
+  {
+    title: 'Spotkanie z klientem',
+    startTime: new Date('2024-08-12T05:00:00'),
+    endTime: new Date('2024-08-12T10:00:00'),
+    description: 'Omówienie projektu z klientem.',
+  },
+  {
+    title: 'Lunch',
+    startTime: new Date('2024-08-12T13:00:00'),
+    endTime: new Date('2024-08-12T13:14:00'),
+    description: 'Lunch z zespołem.',
+  },
+  {
+    title: 'Webinar',
+    startTime: new Date('2024-08-13T15:00:00'),
+    endTime: new Date('2024-08-13T16:30:00'),
+    description: 'Udział w webinarze na temat nowych technologii.',
+  },
+  {
+    title: 'Przygotowanie raportu',
+    startTime: new Date('2024-08-14T09:00:00'),
+    endTime: new Date('2024-08-14T12:00:00'),
+    description: 'Przygotowanie raportu kwartalnego.',
+  },
+];
+
 function changeDate(offset) {
   const viewMode = document.getElementById('viewMode').value;
   if (viewMode === 'month') {
@@ -73,18 +106,31 @@ function renderMonthView() {
   }
 
   for (let day = 1; day <= daysInMonth; day++) {
-    let isToday = false;
-    if (
-      today.toDateString() ===
-      new Date(currentYear, currentMonth, day).toDateString()
-    ) {
-      isToday = true;
-    }
+    const currentDate = new Date(currentYear, currentMonth, day);
+    let isToday = today.toDateString() === currentDate.toDateString();
     const dayClass = isToday
       ? 'month-calendar-day bg-primary text-white'
       : 'month-calendar-day';
 
-    calendarHTML += `<div class="${dayClass}"><strong>${day}</strong></div>`;
+    calendarHTML += `<div class="${dayClass}"><strong>${day}</strong>`;
+
+    const dayEvents = events.filter(
+      (event) => event.startTime.toDateString() === currentDate.toDateString()
+    );
+
+    if (dayEvents.length > 0) {
+      calendarHTML += '<div class="events">';
+      dayEvents.forEach((event) => {
+        calendarHTML += `<div class="event"><small>${event.startTime.toLocaleTimeString(
+          'pl-PL',
+          { hour: '2-digit', minute: '2-digit' }
+        )} - ${event.title}</small></div>`;
+      });
+      calendarHTML += '</div>';
+    }
+
+    calendarHTML += '</div>';
+
     if ((day + adjustedFirstDayOfMonth) % 7 === 0) {
       calendarHTML += '</div><div class="calendar-row">';
     }
@@ -112,9 +158,19 @@ function renderWeekView() {
 
   const startDate = new Date(displayedDate);
   startDate.setDate(displayedDate.getDate() - currentDayIndex);
-
+  startDate.setHours(0, 0, 0, 0); 
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 6);
+  endDate.setHours(23, 59, 59, 999);
+
+  const weekEvents = events.filter((event) => {
+    return (
+      (event.startTime >= startDate && event.startTime <= endDate) ||
+      (event.endTime >= startDate && event.endTime <= endDate) ||
+      (event.startTime < startDate && event.endTime > endDate)
+    );
+  });
+
   const weekContainsToday = today >= startDate && today <= endDate;
 
   let calendarHTML = '<div class="header-row">';
@@ -131,7 +187,7 @@ function renderWeekView() {
   calendarHTML += '</div>';
 
   calendarHTML += '<div class="calendar-row" style="position: relative;">';
-  calendarHTML += '<div class="calendar-day">';
+  calendarHTML += '<div class="calendar-day-hours">';
   for (let hour = 0; hour < 24; hour++) {
     calendarHTML += `<div class="calendar-hour">${hour}:00</div>`;
   }
@@ -143,7 +199,7 @@ function renderWeekView() {
     const isToday = today.toDateString() === day.toDateString();
 
     calendarHTML += `<div class="calendar-day${isToday ? ' current-day' : ''}">
-                            <div class="calendar-hours">`;
+                            <div class="calendar-hours" style="position: relative;">`;
     for (let hour = 0; hour < 24; hour++) {
       calendarHTML += `<div class="calendar-hour"></div>`;
     }
@@ -153,6 +209,64 @@ function renderWeekView() {
   calendarHTML += '</div>';
 
   calendarView.innerHTML = calendarHTML;
+
+  const dayColumns = calendarView.querySelectorAll(
+    '.calendar-row .calendar-day'
+  );
+
+  const eventsByDay = Array.from({ length: 7 }, () => []);
+  weekEvents.forEach((event) => {
+    const eventStartDate = new Date(event.startTime);
+    const startDayIndex = (eventStartDate.getDay() + 6) % 7;
+    eventsByDay[startDayIndex].push(event);
+  });
+
+  eventsByDay.forEach((dayEvents, dayIndex) => {
+    const dayColumn = dayColumns[dayIndex].querySelector('.calendar-hours');
+    if (!dayColumn) return;
+
+    const eventColumnIndexes = [];
+
+    dayEvents.forEach((event, index) => {
+      const eventStartDate = new Date(event.startTime);
+      const eventEndDate = new Date(event.endTime);
+
+      const startHour = eventStartDate.getHours();
+      const startMinute = eventStartDate.getMinutes();
+      const endHour = eventEndDate.getHours();
+      const endMinute = eventEndDate.getMinutes();
+
+      const startInMinutes = startHour * 60 + startMinute;
+      const endInMinutes = endHour * 60 + endMinute;
+      const durationInMinutes = endInMinutes - startInMinutes;
+
+      let columnIndex = 0;
+      while (
+        eventColumnIndexes[columnIndex] &&
+        eventColumnIndexes[columnIndex] > startInMinutes
+      ) {
+        columnIndex++;
+      }
+      eventColumnIndexes[columnIndex] = startInMinutes + durationInMinutes;
+
+      const eventElement = document.createElement('div');
+      eventElement.className = 'dayViewEvent';
+      eventElement.style.left = `${columnIndex * 20}%`; 
+      eventElement.style.top = `${(startInMinutes / 1440) * 100}%`;
+      eventElement.style.height = `${(durationInMinutes / 1440) * 100}%`;
+      // eventElement.style.zIndex = 10 + index; 
+
+      eventElement.innerHTML = `<small>${event.startTime.toLocaleTimeString(
+        'pl-PL',
+        { hour: '2-digit', minute: '2-digit' }
+      )} - ${event.endTime.toLocaleTimeString('pl-PL', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })} ${event.title}</small>`;
+
+      dayColumn.appendChild(eventElement);
+    });
+  });
 
   if (weekContainsToday) {
     const currentHour = today.getHours();
@@ -164,12 +278,15 @@ function renderWeekView() {
     timeLine.className = 'current-time-line';
     timeLine.style.top = `${currentTimeLineTop}%`;
 
-    const currentDayElement = calendarView.querySelector('.current-day');
+    const currentDayElement = calendarView.querySelector(
+      '.current-day .calendar-hours'
+    );
     if (currentDayElement) {
-      currentDayElement.querySelector('.calendar-hours').appendChild(timeLine);
+      currentDayElement.appendChild(timeLine);
     }
   }
 }
+
 
 function renderDayView() {
   const calendarView = document.getElementById('calendarView');
@@ -216,6 +333,46 @@ function renderDayView() {
   `;
 
   calendarView.innerHTML = calendarHTML;
+
+  const dayEvents = events.filter(
+    (event) => event.startTime.toDateString() === displayedDate.toDateString()
+  );
+
+  if (dayEvents.length > 0) {
+    dayEvents.forEach((event, index) => {
+      const eventElement = document.createElement('div');
+      eventElement.className = 'dayViewEvent';
+      eventElement.style.left = `${index * 10}%`;
+      eventElement.style.top = `${
+        ((event.startTime.getHours() * 60 + event.startTime.getMinutes()) /
+          1440) *
+        100
+      }%`;
+      eventElement.style.height = `${
+        ((event.endTime.getHours() * 60 +
+          event.endTime.getMinutes() -
+          event.startTime.getHours() * 60 -
+          event.startTime.getMinutes()) /
+          1440) *
+        100
+      }%`;
+
+      // eventElement.style.zIndex = 10 + index;
+
+      eventElement.innerHTML = `<small>${event.startTime.toLocaleTimeString(
+        'pl-PL',
+        { hour: '2-digit', minute: '2-digit' }
+      )} - ${event.endTime.toLocaleTimeString('pl-PL', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })} ${event.title}</small>`;
+
+      const currentDayColumn = calendarView.querySelector(
+        '.current-day-column .calendar-row .calendar-hours'
+      );
+      currentDayColumn.appendChild(eventElement);
+    });
+  }
 
   if (isToday) {
     const currentHour = today.getHours();

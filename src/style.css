@@ -1,9 +1,28 @@
-body {
-  font-family: Arial, sans-serif;
+:root {
+  --font-family: Arial, sans-serif;
+  --select-width: 10%;
+  --select-min-width: 150px;
+  --border-color: #dee2e6;
+  --background-color-light: #f8f9fa;
+  --padding-small: 5px;
+  --padding-medium: 10px;
+  --line-height: 50px;
+  --highlight-color: #007bff;
+  --current-time-line-color: red;
+  --current-time-line-opacity: 0.5;
+  --event-background-color: #007bff;
+  --event-background-color-light: #1d8aff;
+  --event-color: white;
+  --event-padding: 5%;
 }
+
+body {
+  font-family: var(--font-family);
+}
+
 .form-select {
-  width: 10%;
-  min-width: 150px;
+  width: var(--select-width);
+  min-width: var(--select-min-width);
 }
 
 .calendar-row {
@@ -19,52 +38,78 @@ body {
   flex-direction: column;
   width: 100%;
 }
+
 [class*="col-"].current-day-column {
   padding: 0;
 }
+
 [class*="col-"].hour-column {
   padding: 0;
-  border-right: 1px solid #dee2e6;
+  border-right: 1px solid var(--border-color);
 }
 
 .calendar-hour {
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--border-color);
   text-align: center;
-  padding: 5px;
-  height: 30px;
-  background-color: #f8f9fa;
+  padding: var(--padding-small);
+  height: var(--line-height);
+  background-color: var(--background-color-light);
 }
 
 .calendar-day {
   flex: 1;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-color);
 }
+.calendar-day-hours {
+  flex: 1;
+  border: 1px solid var(--border-color);
+}
+
 
 .month-calendar-day {
   flex: 1;
-  border: 1px solid #dee2e6;
-  padding: 10px;
+  border: 1px solid var(--border-color);
+  padding: var(--padding-medium);
+  min-height: 150px;
 }
-
 
 .calendar-day-header {
   font-weight: bold;
   flex: 1;
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #dee2e6;
+  margin-bottom: var(--padding-medium);
+  padding: var(--padding-medium);
+  border: 1px solid var(--border-color);
 }
 
 .current-time-line {
   position: absolute;
-  border-top: 2px solid red;
-  opacity: 0.5;
+  border-top: 2px solid var(--current-time-line-color);
+  opacity: var(--current-time-line-opacity);
   width: 100%;
-
   z-index: 10;
   pointer-events: none;
 }
+
 .current-day {
-    background-color: #007bff; 
-    position: relative;
+  background-color: var(--highlight-color);
+  position: relative;
+}
+
+.dayViewEvent {
+  position: absolute;
+  /* white-space: nowrap; */
+  min-width: 90%;
+  min-height: 3%;
+  background-color: var(--event-background-color);
+  color: var(--event-color);
+  padding: var(--event-padding);
+  padding: 5px;
+  margin: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+   z-index: 10;
+}
+.dayViewEvent:hover {
+  background-color: var(--event-background-color-light);
+  z-index: 100;
 }
