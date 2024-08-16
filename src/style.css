@@ -20,6 +20,12 @@ body {
   font-family: var(--font-family);
 }
 
+.calendarContainer {
+  margin: 0 auto;
+  width: 95%;
+  overflow: hidden;
+}
+
 .form-select {
   width: var(--select-width);
   min-width: var(--select-min-width);
@@ -97,19 +103,21 @@ body {
 
 .dayViewEvent {
   position: absolute;
-  /* white-space: nowrap; */
-  min-width: 90%;
   min-height: 3%;
   background-color: var(--event-background-color);
   color: var(--event-color);
-  padding: var(--event-padding);
   padding: 5px;
-  margin: 10px;
   border-radius: 5px;
   border: 1px solid var(--border-color);
-   z-index: 10;
+  z-index: 10;
+  overflow: hidden;
+  line-height: 1.2;
+  font-size: 0.85em;
+
 }
 .dayViewEvent:hover {
   background-color: var(--event-background-color-light);
   z-index: 100;
+  min-width: 200px;
+  min-height: 15%;
 }
