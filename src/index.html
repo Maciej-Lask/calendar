@@ -22,7 +22,7 @@
                 <option value="week">Tydzień</option>
                 <option value="day">Dzień</option>
             </select>
-            <button type="button"  class="btn btn-primary">Dodaj wydarzenie</button>
+            <button type="button" id="addEventBtn" class="btn btn-primary">Dodaj wydarzenie</button>
             <button type="button" id="prevBtn" class="btn btn-outline-dark ">
                 <i class="fas fa-chevron-left"></i>
             </button>
@@ -33,8 +33,47 @@
         </div>
         <div id="calendarView" class="border p-3"></div>
     </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addEventModalLabel">Dodaj Wydarzenie</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="eventForm">
+                        <div class="mb-3">
+                            <label for="eventTitle" class="form-label">Tytuł</label>
+                            <input type="text" class="form-control" id="eventTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDate" class="form-label">Data wydarzenia</label>
+                            <input type="date" class="form-control" id="eventDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventStartTime" class="form-label">Godzina rozpoczęcia</label>
+                            <input type="time" class="form-control" id="eventStartTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventEndTime" class="form-label">Godzina zakończenia</label>
+                            <input type="time" class="form-control" id="eventEndTime" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="eventDescription" class="form-label">Opis</label>
+                            <textarea class="form-control" id="eventDescription" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                    <button type="button" class="btn btn-primary" id="saveEventBtn">Zapisz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="script.js"></script>
 
-    <script src="script.js"></script>
 </body>
 
 </html>
