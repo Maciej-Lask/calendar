@@ -1,5 +1,4 @@
-import { events } from '../utils/events.js';
-export function renderDayView() {
+export function renderDayView(events) {
   const calendarView = document.getElementById('calendarView');
   calendarView.innerHTML = '';
 
@@ -46,11 +45,12 @@ export function renderDayView() {
   calendarView.innerHTML = calendarHTML;
 
   const dayEvents = events.filter(
-    (event) => event.startTime.toDateString() === displayedDate.toDateString()
+    (event) =>
+      new Date(event.startTime).toDateString() === displayedDate.toDateString()
   );
 
   const dayEventsSorted = dayEvents.sort((a, b) => {
-    return a.startTime - b.startTime;
+    return new Date(a.startTime) - new Date(b.startTime);
   });
 
   if (dayEventsSorted.length > 0) {
@@ -63,7 +63,7 @@ export function renderDayView() {
         const lastGroup = overlappingGroups[overlappingGroups.length - 1];
         const lastEventInGroup = lastGroup[lastGroup.length - 1];
 
-        if (event.startTime < lastEventInGroup.endTime) {
+        if (new Date(event.startTime) < new Date(lastEventInGroup.endTime)) {
           lastGroup.push(event);
         } else {
           overlappingGroups.push([event]);
@@ -78,25 +78,26 @@ export function renderDayView() {
         const eventElement = document.createElement('div');
         eventElement.className = 'dayViewEvent';
         eventElement.style.top = `${
-          ((event.startTime.getHours() * 60 + event.startTime.getMinutes()) /
+          ((new Date(event.startTime).getHours() * 60 +
+            new Date(event.startTime).getMinutes()) /
             1440) *
           100
         }%`;
 
         if (
-          event.endTime.getHours() * 60 +
-            event.endTime.getMinutes() -
-            event.startTime.getHours() * 60 -
-            event.startTime.getMinutes() <
+          new Date(event.endTime).getHours() * 60 +
+            new Date(event.endTime).getMinutes() -
+            new Date(event.startTime).getHours() * 60 -
+            new Date(event.startTime).getMinutes() <
           31
         ) {
           eventElement.style.height = '4%';
         } else {
           eventElement.style.height = `${
-            ((event.endTime.getHours() * 60 +
-              event.endTime.getMinutes() -
-              event.startTime.getHours() * 60 -
-              event.startTime.getMinutes()) /
+            ((new Date(event.endTime).getHours() * 60 +
+              new Date(event.endTime).getMinutes() -
+              new Date(event.startTime).getHours() * 60 -
+              new Date(event.startTime).getMinutes()) /
               1440) *
             100
           }%`;
@@ -105,13 +106,15 @@ export function renderDayView() {
         eventElement.style.width = `${100 / groupSize}%`;
         eventElement.style.left = `${(100 / groupSize) * index}%`;
 
-        eventElement.innerHTML = `<small>${event.startTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' }
-        )} - ${event.endTime.toLocaleTimeString('pl-PL', {
+        eventElement.innerHTML = `<small>${new Date(
+          event.startTime
+        ).toLocaleTimeString('pl-PL', {
           hour: '2-digit',
           minute: '2-digit',
-        })} ${event.title}</small>`;
+        })} - ${new Date(event.endTime).toLocaleTimeString('pl-PL', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })} ${event.name}</small>`;
 
         const currentDayColumn = calendarView.querySelector(
           '.current-day-column .calendar-row .calendar-hours'

@@ -1,5 +1,3 @@
-import { events } from './events.js';
-
 export function renderMonthView() {
   const calendarView = document.getElementById('calendarView');
   calendarView.innerHTML = '';
@@ -42,17 +40,20 @@ export function renderMonthView() {
 
     calendarHTML += `<div class="${dayClass}"><strong>${day}</strong>`;
 
-    const dayEvents = events.filter(
-      (event) => event.startTime.toDateString() === currentDate.toDateString()
+    const dayEvents = window.events.filter(
+      (event) =>
+        new Date(event.startTime).toDateString() === currentDate.toDateString()
     );
 
     if (dayEvents.length > 0) {
       calendarHTML += '<div class="events">';
       dayEvents.forEach((event) => {
-        calendarHTML += `<div class="event"><small>${event.startTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' }
-        )} - ${event.title}</small></div>`;
+        calendarHTML += `<div class="event"><small>${new Date(
+          event.startTime
+        ).toLocaleTimeString('pl-PL', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })} - ${event.name}</small></div>`;
       });
       calendarHTML += '</div>';
     }

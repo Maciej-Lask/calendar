@@ -1,12 +1,28 @@
 import { renderMonthView } from './utils/renderMonthView.js';
 import { renderWeekView } from './utils/renderWeekView.js';
 import { renderDayView } from './utils/renderDayView.js';
-import { events } from './utils/events.js';
 
 
-document.addEventListener('DOMContentLoaded', function () {
+async function fetchEvents() {
+  try {
+    const response = await fetch('http://localhost:8000/api/events');
+    if (!response.ok) {
+      throw new Error('Błąd w pobieraniu wydarzeń');
+    }
+    const events = await response.json();
+    return events;
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
   const viewMode = document.getElementById('viewMode').value;
   window.currentDate = new Date(); // displayed date
+
+  window.events = await fetchEvents();
+
   renderView(viewMode);
 
   document.getElementById('prevBtn').addEventListener('click', function () {
@@ -33,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document
     .getElementById('saveEventBtn')
-    .addEventListener('click', function () {
+    .addEventListener('click', async function () {
       const title = document.getElementById('eventTitle').value;
       const eventDate = document.getElementById('eventDate').value;
       const startTime = document.getElementById('eventStartTime').value;
@@ -45,21 +61,40 @@ document.addEventListener('DOMContentLoaded', function () {
         const endDateTime = new Date(`${eventDate}T${endTime}`);
 
         if (endDateTime > startDateTime) {
-          events.push({
-            title,
+          const newEvent = {
+            name: title,
             startTime: startDateTime,
             endTime: endDateTime,
             description,
-          });
+          };
 
-          const myModal = bootstrap.Modal.getInstance(
-            document.getElementById('addEventModal')
-          );
-          myModal.hide();
+          try {
+            const response = await fetch('http://localhost:8000/api/events', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newEvent),
+            });
 
-          document.getElementById('eventForm').reset();
+            if (response.ok) {
+              window.events.push(newEvent);
 
-          renderView(document.getElementById('viewMode').value);
+              const myModal = bootstrap.Modal.getInstance(
+                document.getElementById('addEventModal')
+              );
+              myModal.hide();
+
+              document.getElementById('eventForm').reset();
+
+              renderView(document.getElementById('viewMode').value);
+            } else {
+              alert('Wystąpił problem z dodaniem wydarzenia.');
+            }
+          } catch (error) {
+            console.error('Error saving event:', error);
+            alert('Wystąpił problem z dodaniem wydarzenia.');
+          }
         } else {
           alert('Czas zakończenia musi być późniejszy niż czas rozpoczęcia.');
         }
@@ -83,10 +118,10 @@ function changeDate(offset) {
 
 function renderView(viewMode) {
   if (viewMode === 'month') {
-    renderMonthView();
+    renderMonthView(window.events);
   } else if (viewMode === 'week') {
-    renderWeekView();
+    renderWeekView(window.events);
   } else if (viewMode === 'day') {
-    renderDayView();
+    renderDayView(window.events);
   }
 }

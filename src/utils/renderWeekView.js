@@ -1,5 +1,3 @@
-import { events } from '../utils/events.js';
-
 export function renderWeekView() {
   const calendarView = document.getElementById('calendarView');
   calendarView.innerHTML = '';
@@ -16,11 +14,13 @@ export function renderWeekView() {
   endDate.setDate(startDate.getDate() + 6);
   endDate.setHours(23, 59, 59, 999);
 
-  const weekEvents = events.filter((event) => {
+  const weekEvents = window.events.filter((event) => {
+    const eventStartTime = new Date(event.startTime);
+    const eventEndTime = new Date(event.endTime);
     return (
-      (event.startTime >= startDate && event.startTime <= endDate) ||
-      (event.endTime >= startDate && event.endTime <= endDate) ||
-      (event.startTime < startDate && event.endTime > endDate)
+      (eventStartTime >= startDate && eventStartTime <= endDate) ||
+      (eventEndTime >= startDate && eventEndTime <= endDate) ||
+      (eventStartTime < startDate && eventEndTime > endDate)
     );
   });
 
@@ -80,13 +80,15 @@ export function renderWeekView() {
 
     const sortedEvents = dayEvents
       .slice()
-      .sort((a, b) => a.startTime - b.startTime);
+      .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
     const overlappingGroups = [];
 
     sortedEvents.forEach((event) => {
       let added = false;
       for (const group of overlappingGroups) {
-        if (event.startTime < group[group.length - 1].endTime) {
+        if (
+          new Date(event.startTime) < new Date(group[group.length - 1].endTime)
+        ) {
           group.push(event);
           added = true;
           break;
@@ -97,7 +99,6 @@ export function renderWeekView() {
       }
     });
 
-
     overlappingGroups.forEach((group) => {
       const groupSize = group.length;
 
@@ -106,15 +107,17 @@ export function renderWeekView() {
         eventElement.className = 'dayViewEvent';
         eventElement.style.left = `${(100 / groupSize) * index}%`;
         eventElement.style.top = `${
-          ((event.startTime.getHours() * 60 + event.startTime.getMinutes()) /
+          ((new Date(event.startTime).getHours() * 60 +
+            new Date(event.startTime).getMinutes()) /
             1440) *
           100
         }%`;
 
         const durationInMinutes =
-          event.endTime.getHours() * 60 +
-          event.endTime.getMinutes() -
-          (event.startTime.getHours() * 60 + event.startTime.getMinutes());
+          new Date(event.endTime).getHours() * 60 +
+          new Date(event.endTime).getMinutes() -
+          (new Date(event.startTime).getHours() * 60 +
+            new Date(event.startTime).getMinutes());
 
         if (durationInMinutes < 60) {
           eventElement.style.height = '4%';
@@ -123,13 +126,15 @@ export function renderWeekView() {
         }
         eventElement.style.width = `${100 / groupSize}%`;
 
-        eventElement.innerHTML = `<small>${event.startTime.toLocaleTimeString(
-          'pl-PL',
-          { hour: '2-digit', minute: '2-digit' }
-        )} - ${event.endTime.toLocaleTimeString('pl-PL', {
+        eventElement.innerHTML = `<small>${new Date(
+          event.startTime
+        ).toLocaleTimeString('pl-PL', {
           hour: '2-digit',
           minute: '2-digit',
-        })} ${event.title}</small>`;
+        })} - ${new Date(event.endTime).toLocaleTimeString('pl-PL', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })} ${event.name}</small>`;
 
         dayColumn.appendChild(eventElement);
       });
