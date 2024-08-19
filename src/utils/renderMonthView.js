@@ -1,3 +1,5 @@
+import { showEventModal } from './showEventModal.js'; 
+
 export function renderMonthView() {
   const calendarView = document.getElementById('calendarView');
   calendarView.innerHTML = '';
@@ -38,7 +40,7 @@ export function renderMonthView() {
       ? 'month-calendar-day bg-primary text-white'
       : 'month-calendar-day';
 
-    calendarHTML += `<div class="${dayClass}"><strong>${day}</strong>`;
+    calendarHTML += `<div class="${dayClass}" data-date="${currentDate.toISOString()}"><strong>${day}</strong>`;
 
     const dayEvents = window.events.filter(
       (event) =>
@@ -48,12 +50,13 @@ export function renderMonthView() {
     if (dayEvents.length > 0) {
       calendarHTML += '<div class="events">';
       dayEvents.forEach((event) => {
-        calendarHTML += `<div class="event"><small>${new Date(
-          event.startTime
-        ).toLocaleTimeString('pl-PL', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })} - ${event.title}</small></div>`;
+        calendarHTML += `
+          <div class="event" data-id="${event.id}">
+            <small>${new Date(event.startTime).toLocaleTimeString('pl-PL', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })} - ${event.title}</small>
+          </div>`;
       });
       calendarHTML += '</div>';
     }
@@ -74,4 +77,17 @@ export function renderMonthView() {
   calendarHTML += '</div>';
 
   calendarView.innerHTML = calendarHTML;
+
+  const eventElements = document.querySelectorAll('.event');
+  eventElements.forEach((eventElement) => {
+    eventElement.addEventListener('click', () => {
+      const eventId = eventElement.getAttribute('data-id');
+      const event = window.events.find((e) => e.id.toString() === eventId);
+      if (event) {
+        showEventModal(event);
+      } else {
+        console.log('Event not found');
+      }
+    });
+  });
 }

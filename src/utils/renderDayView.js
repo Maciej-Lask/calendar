@@ -1,3 +1,5 @@
+import { showEventModal } from './showEventModal.js';
+
 export function renderDayView(events) {
   const calendarView = document.getElementById('calendarView');
   calendarView.innerHTML = '';
@@ -70,6 +72,7 @@ export function renderDayView(events) {
         }
       }
     });
+
     overlappingGroups.forEach((group) => {
       const groupSize = group.length;
 
@@ -115,6 +118,9 @@ export function renderDayView(events) {
           minute: '2-digit',
         })} ${event.title}</small>`;
 
+        eventElement.setAttribute('data-id', event.id);
+        eventElement.addEventListener('click', () => showEventModal(event));
+
         const currentDayColumn = calendarView.querySelector(
           '.current-day-column .calendar-row .calendar-hours'
         );
@@ -141,3 +147,4 @@ export function renderDayView(events) {
     }
   }
 }
+

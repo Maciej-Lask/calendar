@@ -1,6 +1,7 @@
 import { renderMonthView } from './utils/renderMonthView.js';
 import { renderWeekView } from './utils/renderWeekView.js';
 import { renderDayView } from './utils/renderDayView.js';
+import { showEventModal } from './utils/showEventModal.js';
 
 async function fetchEvents() {
   try {
@@ -13,6 +14,50 @@ async function fetchEvents() {
   } catch (error) {
     console.error('Error fetching events:', error);
     return [];
+  }
+}
+
+async function deleteEvent(id) {
+  try {
+    const response = await fetch(`http://localhost:8000/api/events/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      window.events = window.events.filter((event) => event.id !== id);
+      renderView(document.getElementById('viewMode').value);
+    } else {
+      alert('Wystąpił problem z usunięciem wydarzenia.');
+    }
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    alert('Wystąpił problem z usunięciem wydarzenia.');
+  }
+}
+
+async function updateEvent(event) {
+  console.log('Update request:', event);
+  try {
+    const response = await fetch(
+      `http://localhost:8000/api/events/${event.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(event),
+      }
+    );
+
+    if (response.ok) {
+      window.events = await fetchEvents();
+
+      renderView(document.getElementById('viewMode').value);
+    } else {
+      console.error('Failed to update event.');
+    }
+  } catch (error) {
+    console.error('Error updating event:', error);
   }
 }
 
@@ -122,3 +167,6 @@ function renderView(viewMode) {
     renderDayView(window.events);
   }
 }
+
+window.deleteEvent = deleteEvent;
+window.updateEvent = updateEvent;

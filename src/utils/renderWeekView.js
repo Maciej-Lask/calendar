@@ -1,3 +1,5 @@
+import { showEventModal } from './showEventModal.js';
+
 export function renderWeekView() {
   const calendarView = document.getElementById('calendarView');
   calendarView.innerHTML = '';
@@ -135,6 +137,9 @@ export function renderWeekView() {
           hour: '2-digit',
           minute: '2-digit',
         })} ${event.title}</small>`;
+
+        eventElement.setAttribute('data-id', event.id);
+        eventElement.addEventListener('click', () => showEventModal(event));
 
         dayColumn.appendChild(eventElement);
       });

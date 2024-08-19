@@ -115,9 +115,9 @@ body {
   font-size: 0.85em;
 
 }
-.dayViewEvent:hover {
+/* .dayViewEvent:hover {
   background-color: var(--event-background-color-light);
   z-index: 100;
   min-width: 200px;
   min-height: 15%;
-}
+} */
