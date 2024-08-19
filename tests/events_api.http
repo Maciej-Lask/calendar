@@ -1,0 +1,35 @@
+### Get all events
+GET http://localhost:8000/api/events
+Accept: application/json
+
+###
+
+### Create a new event
+POST http://localhost:8000/api/events
+Content-Type: application/json
+
+{
+  "title": "New Event",
+  "startTime": "2024-08-20T10:00:00",
+  "endTime": "2024-08-20T12:00:00",
+  "description": "This is a test event."
+}
+
+###
+
+### Update an existing event
+PUT http://localhost:8000/api/events/4
+Content-Type: application/json
+
+{
+  "title": "Updated Event Title",
+  "startTime": "2024-08-20T11:00:00",
+  "endTime": "2024-08-20T13:00:00",
+  "description": "This is an updated test event."
+}
+
+###
+
+### Delete an event
+DELETE http://localhost:8000/api/events/4
+Accept: application/json
