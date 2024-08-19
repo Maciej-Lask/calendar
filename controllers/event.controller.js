@@ -29,6 +29,30 @@ exports.createEvent = async (req, res) => {
   }
 };
 
+exports.updateEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, startTime, endTime, description } = req.body;
+
+    const updatedEvent = await prisma.event.update({
+      where: { id: parseInt(id) },
+      data: {
+        title,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        description,
+      },
+    });
+
+    res.json(updatedEvent);
+  } catch (err) {
+    if (err.code === 'P2025') {
+      res.status(404).json({ message: 'Event not found.' });
+    } else {
+      res.status(500).json({ message: err.message });
+    }
+  }
+};
 exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
