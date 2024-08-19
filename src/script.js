@@ -2,7 +2,6 @@ import { renderMonthView } from './utils/renderMonthView.js';
 import { renderWeekView } from './utils/renderWeekView.js';
 import { renderDayView } from './utils/renderDayView.js';
 
-
 async function fetchEvents() {
   try {
     const response = await fetch('http://localhost:8000/api/events');
@@ -40,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   });
 
   document.getElementById('addEventBtn').addEventListener('click', function () {
-    console.log('add event');
     const myModal = new bootstrap.Modal(
       document.getElementById('addEventModal')
     );
@@ -62,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         if (endDateTime > startDateTime) {
           const newEvent = {
-            name: title,
+            title,
             startTime: startDateTime,
             endTime: endDateTime,
             description,
@@ -103,7 +101,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     });
 });
-
 
 function changeDate(offset) {
   const viewMode = document.getElementById('viewMode').value;

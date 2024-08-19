@@ -70,7 +70,6 @@ export function renderDayView(events) {
         }
       }
     });
-    console.log(overlappingGroups);
     overlappingGroups.forEach((group) => {
       const groupSize = group.length;
 
@@ -114,7 +113,7 @@ export function renderDayView(events) {
         })} - ${new Date(event.endTime).toLocaleTimeString('pl-PL', {
           hour: '2-digit',
           minute: '2-digit',
-        })} ${event.name}</small>`;
+        })} ${event.title}</small>`;
 
         const currentDayColumn = calendarView.querySelector(
           '.current-day-column .calendar-row .calendar-hours'

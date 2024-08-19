@@ -1,30 +1,31 @@
-const Event = require('../models/event.model');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 exports.getEvents = async (req, res) => {
   try {
-    const events = await Event.find(); 
+    const events = await prisma.event.findMany();
     res.json(events);
   } catch (err) {
-    res.status(500).json({ message: err.message }); 
+    res.status(500).json({ message: err.message });
   }
 };
 
 exports.createEvent = async (req, res) => {
   try {
-    const { name, startTime, endTime, description } = req.body;
+    const { title, startTime, endTime, description } = req.body;
 
-    const newEvent = new Event({
-      name,
-      startTime,
-      endTime,
-      description,
+    const newEvent = await prisma.event.create({
+      data: {
+        title,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        description,
+      },
     });
 
-    await newEvent.save();
-
-    res.status(201).json(newEvent); 
+    res.status(201).json(newEvent);
   } catch (err) {
-    res.status(500).json({ message: err.message }); 
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -32,15 +33,11 @@ exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedEvent = await Event.findByIdAndDelete(id);
+    const deletedEvent = await prisma.event.delete({
+      where: { id: parseInt(id) },
+    });
 
-    if (!deletedEvent) {
-      return res
-        .status(404)
-        .json({ message: 'Wydarzenie nie zostało znalezione.' });
-    }
-
-    res.json({ message: 'Wydarzenie zostało usunięte.', event: deletedEvent });
+    res.json({ message: 'Event deleted successfully.', event: deletedEvent });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

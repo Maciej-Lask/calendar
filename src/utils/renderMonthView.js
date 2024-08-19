@@ -53,7 +53,7 @@ export function renderMonthView() {
         ).toLocaleTimeString('pl-PL', {
           hour: '2-digit',
           minute: '2-digit',
-        })} - ${event.name}</small></div>`;
+        })} - ${event.title}</small></div>`;
       });
       calendarHTML += '</div>';
     }

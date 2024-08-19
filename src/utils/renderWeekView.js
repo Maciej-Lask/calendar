@@ -134,7 +134,7 @@ export function renderWeekView() {
         })} - ${new Date(event.endTime).toLocaleTimeString('pl-PL', {
           hour: '2-digit',
           minute: '2-digit',
-        })} ${event.name}</small>`;
+        })} ${event.title}</small>`;
 
         dayColumn.appendChild(eventElement);
       });
