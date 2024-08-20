@@ -1,4 +1,6 @@
 import { showEventModal } from './showEventModal.js';
+import { fetchEvents } from '../script.js';
+import { renderView } from '../script.js';
 
 export function renderWeekView() {
   const calendarView = document.getElementById('calendarView');
@@ -163,4 +165,85 @@ export function renderWeekView() {
       currentDayElement.appendChild(timeLine);
     }
   }
+
+  dayColumns.forEach((dayColumn, dayIndex) => {
+    let isDragging = false;
+    let dragStartHour = null;
+
+    dayColumn.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const rect = dayColumn.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      dragStartHour = Math.floor((y / rect.height) * 24);
+    });
+
+    dayColumn.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      const rect = dayColumn.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const currentHour = Math.floor((y / rect.height) * 24);
+    });
+
+    dayColumn.addEventListener('mouseup', async (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+
+      const rect = dayColumn.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const dragEndHour = Math.floor((y / rect.height) * 24);
+
+      if (dragStartHour !== null && dragEndHour > dragStartHour) {
+        const eventStart = new Date(startDate);
+        eventStart.setDate(startDate.getDate() + dayIndex);
+        eventStart.setHours(dragStartHour);
+        eventStart.setMinutes(0);
+
+        const eventEnd = new Date(startDate);
+        eventEnd.setDate(startDate.getDate() + dayIndex);
+        eventEnd.setHours(dragEndHour);
+        eventEnd.setMinutes(0);
+
+        const newEvent = {
+          title: 'Bez tytułu',
+          startTime: eventStart,
+          endTime: eventEnd,
+          description: 'Brak opisu',
+        };
+
+        try {
+          const response = await fetch('http://localhost:8000/api/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEvent),
+          });
+
+          if (response.ok) {
+            window.events = await fetchEvents();
+            renderView(document.getElementById('viewMode').value);
+
+            const createdEvent = window.events.find(
+              (event) =>
+                event.startTime === eventStart.toISOString() &&
+                event.endTime === eventEnd.toISOString()
+            );
+            if (createdEvent) {
+              showEventModal(createdEvent);
+            }
+          } else {
+            alert('Wystąpił błąd podczas dodawania wydarzenia');
+          }
+        } catch (error) {
+          console.error('Error adding event:', error);
+          alert('Wystąpił błąd podczas dodawania wydarzenia');
+        }
+      }
+    });
+
+    dayColumn.addEventListener('mouseleave', () => {
+      isDragging = false;
+    });
+  });
 }

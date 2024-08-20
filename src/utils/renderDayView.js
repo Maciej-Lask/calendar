@@ -1,4 +1,6 @@
 import { showEventModal } from './showEventModal.js';
+import { fetchEvents } from '../script.js';
+import { renderView } from '../script.js';
 
 export function renderDayView(events) {
   const calendarView = document.getElementById('calendarView');
@@ -29,7 +31,7 @@ export function renderDayView(events) {
             <div class="calendar-day-header">${month} ${dayOfWeek} ${dayOfMonth}</div>
           </div>
           <div class="calendar-row" style="position: relative;">
-            <div class="calendar-hours">
+            <div class="calendar-hours" id="calendar-hours">
   `;
 
   for (let hour = 0; hour < 24; hour++) {
@@ -146,5 +148,73 @@ export function renderDayView(events) {
       currentDayElement.appendChild(timeLine);
     }
   }
-}
 
+  const calendarHours = document.getElementById('calendar-hours');
+  let isDragging = false;
+  let dragStartHour = null;
+
+  calendarHours.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    const rect = calendarHours.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    dragStartHour = Math.floor((y / rect.height) * 24);
+  });
+
+  calendarHours.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+
+    const rect = calendarHours.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const currentHour = Math.floor((y / rect.height) * 24);
+  });
+
+  calendarHours.addEventListener('mouseup', async (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const rect = calendarHours.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const dragEndHour = Math.floor((y / rect.height) * 24);
+
+    if (dragStartHour !== null && dragEndHour > dragStartHour) {
+      const eventStart = new Date(window.currentDate);
+      eventStart.setHours(dragStartHour);
+      eventStart.setMinutes(0);
+
+      const eventEnd = new Date(window.currentDate);
+      eventEnd.setHours(dragEndHour);
+      eventEnd.setMinutes(0);
+
+      const newEvent = {
+        title: 'Bez tytułu',
+        startTime: eventStart,
+        endTime: eventEnd,
+        description: 'Brak opisu',
+      };
+
+      try {
+        const response = await fetch('http://localhost:8000/api/events', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newEvent),
+        });
+
+        if (response.ok) {
+          const addedEvent = await response.json();
+
+          window.events.push(addedEvent);
+          renderView(document.getElementById('viewMode').value);
+
+          showEventModal(addedEvent);
+        } else {
+          alert('Wystąpił problem z dodaniem wydarzenia.');
+        }
+      } catch (error) {
+        console.error('Error saving event:', error);
+        alert('Wystąpił problem z dodaniem wydarzenia.');
+      }
+    }
+  });
+}

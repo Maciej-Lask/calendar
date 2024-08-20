@@ -3,7 +3,7 @@ import { renderWeekView } from './utils/renderWeekView.js';
 import { renderDayView } from './utils/renderDayView.js';
 import { showEventModal } from './utils/showEventModal.js';
 
-async function fetchEvents() {
+export async function fetchEvents() {
   try {
     const response = await fetch('http://localhost:8000/api/events');
     if (!response.ok) {
@@ -36,7 +36,6 @@ async function deleteEvent(id) {
 }
 
 async function updateEvent(event) {
-  console.log('Update request:', event);
   try {
     const response = await fetch(
       `http://localhost:8000/api/events/${event.id}`,
@@ -127,6 +126,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 document.getElementById('addEventModal')
               );
               myModal.hide();
+              window.events = await fetchEvents();
 
               document.getElementById('eventForm').reset();
 
@@ -158,7 +158,7 @@ function changeDate(offset) {
   }
 }
 
-function renderView(viewMode) {
+export function renderView(viewMode) {
   if (viewMode === 'month') {
     renderMonthView(window.events);
   } else if (viewMode === 'week') {
