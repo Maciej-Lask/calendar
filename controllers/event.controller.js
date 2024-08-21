@@ -12,7 +12,8 @@ exports.getEvents = async (req, res) => {
 
 exports.createEvent = async (req, res) => {
   try {
-    const { title, startTime, endTime, description } = req.body;
+    const { title, startTime, endTime, description, isBooked, canBeBooked } =
+      req.body;
 
     const newEvent = await prisma.event.create({
       data: {
@@ -20,6 +21,8 @@ exports.createEvent = async (req, res) => {
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         description,
+        isBooked: Boolean(isBooked), 
+        canBeBooked: Boolean(canBeBooked), 
       },
     });
 
@@ -32,7 +35,8 @@ exports.createEvent = async (req, res) => {
 exports.updateEvent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, startTime, endTime, description } = req.body;
+    const { title, startTime, endTime, description, isBooked, canBeBooked } =
+      req.body;
 
     const updatedEvent = await prisma.event.update({
       where: { id: parseInt(id) },
@@ -41,6 +45,8 @@ exports.updateEvent = async (req, res) => {
         startTime: new Date(startTime),
         endTime: new Date(endTime),
         description,
+        isBooked: Boolean(isBooked), 
+        canBeBooked: Boolean(canBeBooked),
       },
     });
 
@@ -53,6 +59,7 @@ exports.updateEvent = async (req, res) => {
     }
   }
 };
+
 exports.deleteEvent = async (req, res) => {
   try {
     const { id } = req.params;

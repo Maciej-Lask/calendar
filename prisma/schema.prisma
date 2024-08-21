@@ -19,5 +19,7 @@ model Event {
   title     String
   startTime DateTime
   endTime   DateTime
-  description String
+  description String  
+  isBooked    Boolean @default(false)
+  canBeBooked Boolean @default(false)
 }

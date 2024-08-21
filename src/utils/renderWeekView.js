@@ -179,8 +179,9 @@ export function renderWeekView() {
 
       dragVisualElement = document.createElement('div');
       dragVisualElement.className = 'drag-visual';
-      dragVisualElement.style.position = 'absolute';
-      dragVisualElement.style.width = '12.5%';
+      dragVisualElement.style.position = 'absolute'
+      const isToday = dayColumn.classList.contains('current-day');
+      dragVisualElement.style.width = isToday ? '100%' : '12.5%';
       dragVisualElement.style.top = `${(dragStartSlot / 48) * 100}%`;
       dragVisualElement.style.height = '0';
       dragVisualElement.style.backgroundColor = 'rgba(0, 123, 255, 0.3)';

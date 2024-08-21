@@ -60,13 +60,27 @@ async function updateEvent(event) {
   }
 }
 
+function changeUserRole() {
+  const reservationView = document.getElementById('reservationView').value;
+  if (reservationView === 'admin') {
+    window.userRole = 'admin';
+  } else if (reservationView === 'client') {
+    window.userRole = 'client';
+  }
+  console.log(`User role changed to: ${window.userRole}`);
+}
+
+
 document.addEventListener('DOMContentLoaded', async function () {
   const viewMode = document.getElementById('viewMode').value;
   window.currentDate = new Date(); // displayed date
-
+  
   window.events = await fetchEvents();
-
+  
   renderView(viewMode);
+  document
+    .getElementById('reservationView')
+    .addEventListener('change', changeUserRole);
 
   document.getElementById('prevBtn').addEventListener('click', function () {
     changeDate(-1);

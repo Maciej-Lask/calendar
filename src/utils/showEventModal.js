@@ -19,13 +19,24 @@ export function showEventModal(event) {
     minute: '2-digit',
   });
 
-  const modalContent = `
+  let modalContent = `
     <h5>${event.title}</h5>
     <p><strong>Data:</strong> ${startDate} - ${endDate}</p>
     <p><strong>Godzina rozpoczęcia:</strong> ${startTime}</p>
     <p><strong>Godzina zakończenia:</strong> ${endTime}</p>
     <p><strong>Opis:</strong> ${event.description}</p>
   `;
+
+  if (event.canBeBooked) {
+    modalContent += `<p><strong>Możliwość rezerwacji:</strong> Tak</p>`;
+    if (event.isBooked) {
+      modalContent += `<p><strong>Zarezerwowane:</strong> Tak</p>`;
+    } else {
+      modalContent += `<p><strong>Zarezerwowane:</strong> Nie</p>`;
+    }
+  } else {
+    modalContent += `<p><strong>Możliwość rezerwacji:</strong> Nie</p>`;
+  }
 
   const modalBody = document.querySelector('#eventModal .modal-body');
   modalBody.innerHTML = modalContent;
@@ -71,6 +82,9 @@ function showEditEventForm(event) {
   ).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   document.getElementById('editEventDescription').value = event.description;
 
+  document.getElementById('editCanBeBooked').checked = event.canBeBooked;
+  document.getElementById('editIsBooked').checked = event.isBooked;
+
   const editEventModal = new bootstrap.Modal(
     document.getElementById('editEventModal')
   );
@@ -88,6 +102,8 @@ function showEditEventForm(event) {
         document.getElementById('editEventEndTime').value
       }:00`,
       description: document.getElementById('editEventDescription').value,
+      canBeBooked: document.getElementById('editCanBeBooked').checked,
+      isBooked: document.getElementById('editIsBooked').checked,
     };
 
     updateEvent(updatedEvent);
