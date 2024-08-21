@@ -168,21 +168,36 @@ export function renderWeekView() {
 
   dayColumns.forEach((dayColumn, dayIndex) => {
     let isDragging = false;
-    let dragStartHour = null;
+    let dragStartSlot = null;
+    let dragVisualElement = null;
 
     dayColumn.addEventListener('mousedown', (e) => {
       isDragging = true;
       const rect = dayColumn.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      dragStartHour = Math.floor((y / rect.height) * 24);
+      dragStartSlot = Math.floor((y / rect.height) * 48); 
+
+      dragVisualElement = document.createElement('div');
+      dragVisualElement.className = 'drag-visual';
+      dragVisualElement.style.position = 'absolute';
+      dragVisualElement.style.width = '12.5%';
+      dragVisualElement.style.top = `${(dragStartSlot / 48) * 100}%`;
+      dragVisualElement.style.height = '0';
+      dragVisualElement.style.backgroundColor = 'rgba(0, 123, 255, 0.3)';
+      dayColumn.appendChild(dragVisualElement);
     });
 
     dayColumn.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
+      if (!isDragging || !dragVisualElement) return;
 
       const rect = dayColumn.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      const currentHour = Math.floor((y / rect.height) * 24);
+      const currentSlot = Math.floor((y / rect.height) * 48);
+
+      const start = Math.min(dragStartSlot, currentSlot);
+      const end = Math.max(dragStartSlot, currentSlot);
+      dragVisualElement.style.top = `${(start / 48) * 100}%`;
+      dragVisualElement.style.height = `${((end - start) / 48) * 100}%`;
     });
 
     dayColumn.addEventListener('mouseup', async (e) => {
@@ -191,18 +206,18 @@ export function renderWeekView() {
 
       const rect = dayColumn.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      const dragEndHour = Math.floor((y / rect.height) * 24);
+      const dragEndSlot = Math.floor((y / rect.height) * 48);
 
-      if (dragStartHour !== null && dragEndHour > dragStartHour) {
+      if (dragStartSlot !== null && dragEndSlot > dragStartSlot) {
         const eventStart = new Date(startDate);
         eventStart.setDate(startDate.getDate() + dayIndex);
-        eventStart.setHours(dragStartHour);
-        eventStart.setMinutes(0);
+        eventStart.setHours(Math.floor(dragStartSlot / 2));
+        eventStart.setMinutes((dragStartSlot % 2) * 30);
 
         const eventEnd = new Date(startDate);
         eventEnd.setDate(startDate.getDate() + dayIndex);
-        eventEnd.setHours(dragEndHour);
-        eventEnd.setMinutes(0);
+        eventEnd.setHours(Math.floor(dragEndSlot / 2));
+        eventEnd.setMinutes((dragEndSlot % 2) * 30);
 
         const newEvent = {
           title: 'Bez tytułu',
@@ -240,10 +255,20 @@ export function renderWeekView() {
           alert('Wystąpił błąd podczas dodawania wydarzenia');
         }
       }
+
+      if (dragVisualElement) {
+        dayColumn.removeChild(dragVisualElement);
+        dragVisualElement = null;
+      }
     });
 
     dayColumn.addEventListener('mouseleave', () => {
       isDragging = false;
+      if (dragVisualElement) {
+        dayColumn.removeChild(dragVisualElement);
+        dragVisualElement = null;
+      }
     });
   });
+
 }
