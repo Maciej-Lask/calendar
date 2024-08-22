@@ -109,6 +109,9 @@ export function renderWeekView() {
       group.forEach((event, index) => {
         const eventElement = document.createElement('div');
         eventElement.className = 'dayViewEvent';
+        if (event.isBooked) {
+          eventElement.classList.add('booked');
+        }
         eventElement.style.left = `${(100 / groupSize) * index}%`;
         eventElement.style.top = `${
           ((new Date(event.startTime).getHours() * 60 +

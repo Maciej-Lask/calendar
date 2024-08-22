@@ -120,3 +120,8 @@ body {
   z-index: 100;
   min-width: 200px;
 }
+.dayViewEvent.booked {
+  background-color: #d3d3d3; 
+  color: #808080; 
+  /* pointer-events: none; */
+}

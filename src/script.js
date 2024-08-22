@@ -68,19 +68,30 @@ function changeUserRole() {
     window.userRole = 'client';
   }
   console.log(`User role changed to: ${window.userRole}`);
+  toggleAddEventButton();
 }
 
+function toggleAddEventButton() {
+  const addEventBtn = document.getElementById('addEventBtn');
+  if (window.userRole === 'admin') {
+    addEventBtn.style.display = 'block';
+  } else {
+    addEventBtn.style.display = 'none';
+  }
+}
 
 document.addEventListener('DOMContentLoaded', async function () {
   const viewMode = document.getElementById('viewMode').value;
   window.currentDate = new Date(); // displayed date
-  
+  window.userRole = 'client';
   window.events = await fetchEvents();
-  
+
   renderView(viewMode);
   document
     .getElementById('reservationView')
     .addEventListener('change', changeUserRole);
+
+  toggleAddEventButton();
 
   document.getElementById('prevBtn').addEventListener('click', function () {
     changeDate(-1);

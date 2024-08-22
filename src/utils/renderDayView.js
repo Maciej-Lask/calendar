@@ -77,10 +77,14 @@ export function renderDayView(events) {
 
     overlappingGroups.forEach((group) => {
       const groupSize = group.length;
-
       group.forEach((event, index) => {
         const eventElement = document.createElement('div');
         eventElement.className = 'dayViewEvent';
+
+        if (event.isBooked) {
+          eventElement.classList.add('booked');
+        }
+
         eventElement.style.top = `${
           ((new Date(event.startTime).getHours() * 60 +
             new Date(event.startTime).getMinutes()) /
@@ -158,7 +162,7 @@ export function renderDayView(events) {
     isDragging = true;
     const rect = calendarHours.getBoundingClientRect();
     const y = e.clientY - rect.top;
-    dragStartSlot = Math.floor((y / rect.height) * 48); 
+    dragStartSlot = Math.floor((y / rect.height) * 48);
 
     dragVisualElement = document.createElement('div');
     dragVisualElement.className = 'drag-visual';
@@ -247,5 +251,4 @@ export function renderDayView(events) {
       dragVisualElement = null;
     }
   });
-
 }
