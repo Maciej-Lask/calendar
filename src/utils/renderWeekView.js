@@ -169,6 +169,12 @@ export function renderWeekView() {
     }
   }
 
+  if (window.userRole !== 'client') {
+    setupDragAndDropWeek(dayColumns, startDate);
+  }
+}
+
+function setupDragAndDropWeek(dayColumns, startDate) {
   dayColumns.forEach((dayColumn, dayIndex) => {
     let isDragging = false;
     let dragStartSlot = null;
@@ -178,11 +184,11 @@ export function renderWeekView() {
       isDragging = true;
       const rect = dayColumn.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      dragStartSlot = Math.floor((y / rect.height) * 48); 
+      dragStartSlot = Math.floor((y / rect.height) * 48);
 
       dragVisualElement = document.createElement('div');
       dragVisualElement.className = 'drag-visual';
-      dragVisualElement.style.position = 'absolute'
+      dragVisualElement.style.position = 'absolute';
       const isToday = dayColumn.classList.contains('current-day');
       dragVisualElement.style.width = isToday ? '100%' : '12.5%';
       dragVisualElement.style.top = `${(dragStartSlot / 48) * 100}%`;
@@ -274,5 +280,4 @@ export function renderWeekView() {
       }
     });
   });
-
 }

@@ -153,102 +153,108 @@ export function renderDayView(events) {
     }
   }
 
-  const calendarHours = document.getElementById('calendar-hours');
-  let isDragging = false;
-  let dragStartSlot = null;
-  let dragVisualElement = null;
+  const setupDragAndDrop = () => {
+    const calendarHours = document.getElementById('calendar-hours');
+    let isDragging = false;
+    let dragStartSlot = null;
+    let dragVisualElement = null;
 
-  calendarHours.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    const rect = calendarHours.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    dragStartSlot = Math.floor((y / rect.height) * 48);
+    calendarHours.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      const rect = calendarHours.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      dragStartSlot = Math.floor((y / rect.height) * 48);
 
-    dragVisualElement = document.createElement('div');
-    dragVisualElement.className = 'drag-visual';
-    dragVisualElement.style.position = 'absolute';
-    dragVisualElement.style.left = '0';
-    dragVisualElement.style.width = '100%';
-    dragVisualElement.style.top = `${(dragStartSlot / 48) * 100}%`;
-    dragVisualElement.style.height = '0';
-    dragVisualElement.style.backgroundColor = 'rgba(0, 123, 255, 0.3)';
-    calendarHours.appendChild(dragVisualElement);
-  });
+      dragVisualElement = document.createElement('div');
+      dragVisualElement.className = 'drag-visual';
+      dragVisualElement.style.position = 'absolute';
+      dragVisualElement.style.left = '0';
+      dragVisualElement.style.width = '100%';
+      dragVisualElement.style.top = `${(dragStartSlot / 48) * 100}%`;
+      dragVisualElement.style.height = '0';
+      dragVisualElement.style.backgroundColor = 'rgba(0, 123, 255, 0.3)';
+      calendarHours.appendChild(dragVisualElement);
+    });
 
-  calendarHours.addEventListener('mousemove', (e) => {
-    if (!isDragging || !dragVisualElement) return;
+    calendarHours.addEventListener('mousemove', (e) => {
+      if (!isDragging || !dragVisualElement) return;
 
-    const rect = calendarHours.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const currentSlot = Math.floor((y / rect.height) * 48);
+      const rect = calendarHours.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const currentSlot = Math.floor((y / rect.height) * 48);
 
-    const start = Math.min(dragStartSlot, currentSlot);
-    const end = Math.max(dragStartSlot, currentSlot);
-    dragVisualElement.style.top = `${(start / 48) * 100}%`;
-    dragVisualElement.style.height = `${((end - start) / 48) * 100}%`;
-  });
+      const start = Math.min(dragStartSlot, currentSlot);
+      const end = Math.max(dragStartSlot, currentSlot);
+      dragVisualElement.style.top = `${(start / 48) * 100}%`;
+      dragVisualElement.style.height = `${((end - start) / 48) * 100}%`;
+    });
 
-  calendarHours.addEventListener('mouseup', async (e) => {
-    if (!isDragging) return;
-    isDragging = false;
+    calendarHours.addEventListener('mouseup', async (e) => {
+      if (!isDragging) return;
+      isDragging = false;
 
-    const rect = calendarHours.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const dragEndSlot = Math.floor((y / rect.height) * 48);
+      const rect = calendarHours.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const dragEndSlot = Math.floor((y / rect.height) * 48);
 
-    if (dragVisualElement) {
-      calendarHours.removeChild(dragVisualElement);
-      dragVisualElement = null;
-    }
+      if (dragVisualElement) {
+        calendarHours.removeChild(dragVisualElement);
+        dragVisualElement = null;
+      }
 
-    if (dragStartSlot !== null && dragEndSlot > dragStartSlot) {
-      const eventStart = new Date(window.currentDate);
-      eventStart.setHours(Math.floor(dragStartSlot / 2));
-      eventStart.setMinutes((dragStartSlot % 2) * 30);
+      if (dragStartSlot !== null && dragEndSlot > dragStartSlot) {
+        const eventStart = new Date(window.currentDate);
+        eventStart.setHours(Math.floor(dragStartSlot / 2));
+        eventStart.setMinutes((dragStartSlot % 2) * 30);
 
-      const eventEnd = new Date(window.currentDate);
-      eventEnd.setHours(Math.floor(dragEndSlot / 2));
-      eventEnd.setMinutes((dragEndSlot % 2) * 30);
+        const eventEnd = new Date(window.currentDate);
+        eventEnd.setHours(Math.floor(dragEndSlot / 2));
+        eventEnd.setMinutes((dragEndSlot % 2) * 30);
 
-      const newEvent = {
-        title: 'Bez tytułu',
-        startTime: eventStart,
-        endTime: eventEnd,
-        description: 'Brak opisu',
-      };
+        const newEvent = {
+          title: 'Bez tytułu',
+          startTime: eventStart,
+          endTime: eventEnd,
+          description: 'Brak opisu',
+        };
 
-      try {
-        const response = await fetch('http://localhost:8000/api/events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newEvent),
-        });
+        try {
+          const response = await fetch('http://localhost:8000/api/events', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newEvent),
+          });
 
-        if (response.ok) {
-          const addedEvent = await response.json();
+          if (response.ok) {
+            const addedEvent = await response.json();
 
-          window.events.push(addedEvent);
-          renderView(document.getElementById('viewMode').value);
+            window.events.push(addedEvent);
+            renderView(document.getElementById('viewMode').value);
 
-          showEventModal(addedEvent);
-        } else {
+            showEventModal(addedEvent);
+          } else {
+            alert('Wystąpił problem z dodaniem wydarzenia.');
+          }
+        } catch (error) {
+          console.error('Error saving event:', error);
           alert('Wystąpił problem z dodaniem wydarzenia.');
         }
-      } catch (error) {
-        console.error('Error saving event:', error);
-        alert('Wystąpił problem z dodaniem wydarzenia.');
       }
-    }
-  });
+    });
 
-  calendarHours.addEventListener('mouseleave', () => {
-    isDragging = false;
+    calendarHours.addEventListener('mouseleave', () => {
+      isDragging = false;
 
-    if (dragVisualElement) {
-      calendarHours.removeChild(dragVisualElement);
-      dragVisualElement = null;
-    }
-  });
+      if (dragVisualElement) {
+        calendarHours.removeChild(dragVisualElement);
+        dragVisualElement = null;
+      }
+    });
+  };
+
+  if (window.userRole !== 'client') {
+    setupDragAndDrop();
+  }
 }

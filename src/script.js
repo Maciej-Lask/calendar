@@ -69,6 +69,8 @@ function changeUserRole() {
   }
   console.log(`User role changed to: ${window.userRole}`);
   toggleAddEventButton();
+
+  renderView(document.getElementById('viewMode').value);
 }
 
 function toggleAddEventButton() {
